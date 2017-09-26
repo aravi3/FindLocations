@@ -30082,19 +30082,97 @@ var Home = function (_React$Component) {
   function Home(props) {
     _classCallCheck(this, Home);
 
-    return _possibleConstructorReturn(this, (Home.__proto__ || Object.getPrototypeOf(Home)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (Home.__proto__ || Object.getPrototypeOf(Home)).call(this, props));
+
+    _this.state = {
+      search: "",
+      latitude: undefined,
+      longitude: undefined
+    };
+
+    _this.setSearch = _this.setSearch.bind(_this);
+    _this.submitSearch = _this.submitSearch.bind(_this);
+    return _this;
   }
 
   _createClass(Home, [{
-    key: 'render',
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      var currentLocation = navigator.geolocation;
+
+      currentLocation.getCurrentPosition(function (position) {
+        _this2.setState({ latitude: position.coords.latitude });
+        _this2.setState({ longitude: position.coords.longitude });
+
+        var map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: position.coords.latitude, lng: position.coords.longitude },
+          zoom: 12
+        });
+      });
+    }
+  }, {
+    key: "setSearch",
+    value: function setSearch(e) {
+      var _this3 = this;
+
+      e.preventDefault();
+      var search = e.target.value ? e.target.value : "";
+      this.setState({ search: search });
+      setTimeout(function () {
+        return console.log(_this3.state.search);
+      }, 0);
+    }
+  }, {
+    key: "submitSearch",
+    value: function submitSearch(e) {
+      e.preventDefault();
+    }
+  }, {
+    key: "render",
     value: function render() {
       return _react2.default.createElement(
-        'div',
+        "div",
         null,
         _react2.default.createElement(
-          'h1',
+          "section",
+          { className: "search" },
+          _react2.default.createElement(
+            "form",
+            { onSubmit: this.submitSearch },
+            _react2.default.createElement(
+              "label",
+              { className: "search-bar" },
+              _react2.default.createElement("i", { className: "fa fa-search" }),
+              _react2.default.createElement("input", { className: "search-text", onChange: this.setSearch, placeholder: "Search Locations", type: "text", value: this.state.search })
+            ),
+            _react2.default.createElement("input", { className: "search-submit", type: "submit", value: "Search" })
+          ),
+          _react2.default.createElement(
+            "ul",
+            { className: "results" },
+            _react2.default.createElement(
+              "li",
+              null,
+              "Some text"
+            ),
+            _react2.default.createElement(
+              "li",
+              null,
+              "Some other text"
+            )
+          )
+        ),
+        _react2.default.createElement(
+          "p",
           null,
-          'Welcome Yo!'
+          this.state.latitude ? this.state.latitude : "Loading"
+        ),
+        _react2.default.createElement(
+          "p",
+          null,
+          this.state.longitude ? this.state.longitude : "Loading"
         )
       );
     }

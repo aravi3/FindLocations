@@ -1,0 +1,23 @@
+#map {
+  height: 100%;
+}
+
+.search-text {
+  padding-left: 10px;
+  height: 34px;
+}
+
+.search-submit {
+  padding: 5px;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.search-submit:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.results {
+  margin-top: 10px;
+}

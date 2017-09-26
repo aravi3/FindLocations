@@ -16,12 +16,17 @@ span, article, footer, time, small {
   background: transparent;
 }
 
+html, body {
+  height: 100%;
+}
+
 ol, ul {
   list-style: none;
 }
 
 body {
   background: rgba(255, 246, 209, 0.75);
+  font-family: 'Open Sans','Roboto',sans-serif;
 }
 
 img {
