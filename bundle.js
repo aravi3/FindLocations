@@ -30157,6 +30157,7 @@ var Home = function (_React$Component) {
           _react2.default.createElement(
             "li",
             { className: "result-item" },
+            _react2.default.createElement("i", { className: "fa fa-star" }),
             "Some text"
           ),
           _react2.default.createElement(

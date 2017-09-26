@@ -55,7 +55,7 @@ class Home extends React.Component {
         </div>
 
         <ul className="results">
-          <li className="result-item">Some text</li>
+          <li className="result-item"><i className="fa fa-star"></i>Some text</li>
           <li className="result-item">Some other text</li>
           <li className="result-item">{this.state.latitude ? this.state.latitude : "Loading"}</li>
           <li className="result-item bottom-result-item">{this.state.longitude ? this.state.longitude : "Loading"}</li>

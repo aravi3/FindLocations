@@ -9,16 +9,18 @@
   z-index: 99;
 }
 
-.fa-star {
+.fa-2x {
   padding-left: 10px;
+  padding-right: 0;
   color: #000000;
+}
+
+.fa-star {
+  padding-right: 7px;
 }
 
 .fa-star:hover {
   color: #ffd700;
-}
-
-.fa-star:hover {
   cursor: pointer;
 }
 
