@@ -30140,7 +30140,7 @@ var Home = function (_React$Component) {
           { className: "search" },
           _react2.default.createElement(
             "form",
-            { onSubmit: this.submitSearch },
+            { className: "search-form", onSubmit: this.submitSearch },
             _react2.default.createElement(
               "label",
               { className: "search-bar" },
@@ -30154,25 +30154,25 @@ var Home = function (_React$Component) {
             { className: "results" },
             _react2.default.createElement(
               "li",
-              null,
+              { className: "result-item" },
               "Some text"
             ),
             _react2.default.createElement(
               "li",
-              null,
+              { className: "result-item" },
               "Some other text"
+            ),
+            _react2.default.createElement(
+              "li",
+              { className: "result-item" },
+              this.state.latitude ? this.state.latitude : "Loading"
+            ),
+            _react2.default.createElement(
+              "li",
+              { className: "result-item bottom-result-item" },
+              this.state.longitude ? this.state.longitude : "Loading"
             )
           )
-        ),
-        _react2.default.createElement(
-          "p",
-          null,
-          this.state.latitude ? this.state.latitude : "Loading"
-        ),
-        _react2.default.createElement(
-          "p",
-          null,
-          this.state.longitude ? this.state.longitude : "Loading"
         )
       );
     }

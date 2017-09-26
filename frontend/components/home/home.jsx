@@ -43,7 +43,7 @@ class Home extends React.Component {
     return (
       <div>
         <section className="search">
-          <form onSubmit={this.submitSearch}>
+          <form className="search-form" onSubmit={this.submitSearch}>
             <label className="search-bar"><i className="fa fa-search"></i>
               <input className="search-text" onChange={this.setSearch} placeholder="Search Locations" type="text" value={this.state.search} />
             </label>
@@ -52,13 +52,12 @@ class Home extends React.Component {
           </form>
           
           <ul className="results">
-            <li>Some text</li>
-            <li>Some other text</li>
+            <li className="result-item">Some text</li>
+            <li className="result-item">Some other text</li>
+            <li className="result-item">{this.state.latitude ? this.state.latitude : "Loading"}</li>
+            <li className="result-item bottom-result-item">{this.state.longitude ? this.state.longitude : "Loading"}</li>  
           </ul>
         </section>
-        
-        <p>{this.state.latitude ? this.state.latitude : "Loading"}</p>
-        <p>{this.state.longitude ? this.state.longitude : "Loading"}</p>
       </div>
     );
   }
