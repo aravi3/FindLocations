@@ -2,16 +2,34 @@
   height: 100%;
 }
 
-#root { 
-  position: absolute; 
-  top: 60px; 
-  left: 50px; 
-  z-index: 99; 
+#root {
+  position: absolute;
+  top: 60px;
+  left: 50px;
+  z-index: 99;
+}
+
+.fa-star {
+  padding-left: 10px;
+  color: #000000;
+}
+
+.fa-star:hover {
+  color: #ffd700;
+}
+
+.fa-star:hover {
+  cursor: pointer;
 }
 
 .fa-search {
   padding-left: 10px;
   padding-right: 2px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
 }
 
 .search-form {
@@ -36,6 +54,7 @@
 
 .results {
   margin-top: 30px;
+  width: 266.5px;
 }
 
 .result-item {

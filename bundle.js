@@ -30136,7 +30136,7 @@ var Home = function (_React$Component) {
         "div",
         null,
         _react2.default.createElement(
-          "section",
+          "div",
           { className: "search" },
           _react2.default.createElement(
             "form",
@@ -30149,29 +30149,30 @@ var Home = function (_React$Component) {
             ),
             _react2.default.createElement("input", { className: "search-submit", type: "submit", value: "Search" })
           ),
+          _react2.default.createElement("i", { className: "fa fa-star fa-2x" })
+        ),
+        _react2.default.createElement(
+          "ul",
+          { className: "results" },
           _react2.default.createElement(
-            "ul",
-            { className: "results" },
-            _react2.default.createElement(
-              "li",
-              { className: "result-item" },
-              "Some text"
-            ),
-            _react2.default.createElement(
-              "li",
-              { className: "result-item" },
-              "Some other text"
-            ),
-            _react2.default.createElement(
-              "li",
-              { className: "result-item" },
-              this.state.latitude ? this.state.latitude : "Loading"
-            ),
-            _react2.default.createElement(
-              "li",
-              { className: "result-item bottom-result-item" },
-              this.state.longitude ? this.state.longitude : "Loading"
-            )
+            "li",
+            { className: "result-item" },
+            "Some text"
+          ),
+          _react2.default.createElement(
+            "li",
+            { className: "result-item" },
+            "Some other text"
+          ),
+          _react2.default.createElement(
+            "li",
+            { className: "result-item" },
+            this.state.latitude ? this.state.latitude : "Loading"
+          ),
+          _react2.default.createElement(
+            "li",
+            { className: "result-item bottom-result-item" },
+            this.state.longitude ? this.state.longitude : "Loading"
           )
         )
       );
