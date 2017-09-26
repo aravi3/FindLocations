@@ -30086,12 +30086,16 @@ var Home = function (_React$Component) {
 
     _this.state = {
       search: "",
+      map: undefined,
       latitude: undefined,
-      longitude: undefined
+      longitude: undefined,
+      locations: []
     };
 
     _this.setSearch = _this.setSearch.bind(_this);
     _this.submitSearch = _this.submitSearch.bind(_this);
+    _this.showFavorites = _this.showFavorites.bind(_this);
+    _this.handleSearch = _this.handleSearch.bind(_this);
     return _this;
   }
 
@@ -30106,9 +30110,17 @@ var Home = function (_React$Component) {
         _this2.setState({ latitude: position.coords.latitude });
         _this2.setState({ longitude: position.coords.longitude });
 
-        var map = new google.maps.Map(document.getElementById("map"), {
-          center: { lat: position.coords.latitude, lng: position.coords.longitude },
-          zoom: 12
+        var currentCoordinates = { lat: position.coords.latitude, lng: position.coords.longitude };
+
+        _this2.setState({ map: new google.maps.Map(document.getElementById("map"), {
+            center: currentCoordinates,
+            zoom: 12
+          })
+        });
+
+        var marker = new google.maps.Marker({
+          position: currentCoordinates,
+          map: _this2.state.map
         });
       });
     }
@@ -30118,6 +30130,7 @@ var Home = function (_React$Component) {
       var _this3 = this;
 
       e.preventDefault();
+
       var search = e.target.value ? e.target.value : "";
       this.setState({ search: search });
       setTimeout(function () {
@@ -30128,7 +30141,40 @@ var Home = function (_React$Component) {
     key: "submitSearch",
     value: function submitSearch(e) {
       e.preventDefault();
+
+      // const request = {
+      //   location: new google.maps.LatLng(this.state.latitude, this.state.longitude),
+      //   keyword: this.state.search,
+      //   rankBy: google.maps.places.RankBy.DISTANCE
+      // }
+
+      var request = {
+        location: new google.maps.LatLng(this.state.latitude, this.state.longitude),
+        radius: '20000',
+        query: this.state.search
+      };
+
+      var service = new google.maps.places.PlacesService(this.state.map);
+      service.textSearch(request, this.handleSearch);
     }
+  }, {
+    key: "handleSearch",
+    value: function handleSearch(results, status) {
+      var locations = [];
+
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+          locations.push(results[i]);
+        }
+      }
+
+      console.log(locations);
+
+      this.setState({ locations: locations });
+    }
+  }, {
+    key: "showFavorites",
+    value: function showFavorites() {}
   }, {
     key: "render",
     value: function render() {
@@ -30149,7 +30195,7 @@ var Home = function (_React$Component) {
             ),
             _react2.default.createElement("input", { className: "search-submit", type: "submit", value: "Search" })
           ),
-          _react2.default.createElement("i", { className: "fa fa-star fa-2x" })
+          _react2.default.createElement("i", { className: "fa fa-star fa-2x", onClick: this.showFavorites })
         ),
         _react2.default.createElement(
           "ul",
@@ -30163,16 +30209,19 @@ var Home = function (_React$Component) {
           _react2.default.createElement(
             "li",
             { className: "result-item" },
+            _react2.default.createElement("i", { className: "fa fa-star" }),
             "Some other text"
           ),
           _react2.default.createElement(
             "li",
             { className: "result-item" },
+            _react2.default.createElement("i", { className: "fa fa-star" }),
             this.state.latitude ? this.state.latitude : "Loading"
           ),
           _react2.default.createElement(
             "li",
-            { className: "result-item bottom-result-item" },
+            { className: "result-item" },
+            _react2.default.createElement("i", { className: "fa fa-star" }),
             this.state.longitude ? this.state.longitude : "Loading"
           )
         )

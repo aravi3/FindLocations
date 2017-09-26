@@ -67,6 +67,12 @@
   border-right: 1px solid #d3d3d3;
 }
 
+.result-item:hover {
+  cursor: pointer;
+  background-color: #3232d7;
+  color: #ffffff;
+}
+
 .bottom-result-item {
   border-bottom: 1px solid #d3d3d3;
 }
