@@ -9,19 +9,25 @@
   z-index: 99;
 }
 
-.fa-2x {
+.fa-star.fa-2x {
   padding-left: 10px;
   padding-right: 0;
   color: #000000;
 }
 
-.fa-star {
-  padding-right: 7px;
-}
-
-.fa-star:hover {
+.fa-2x:hover {
   color: #ffd700;
   cursor: pointer;
+}
+
+.fa-star-o {
+  padding-right: 7px;
+  color: #000000;
+}
+
+.fa-star {
+  padding-right: 7px;
+  color: #ffd700;
 }
 
 .fa-search {
@@ -57,6 +63,13 @@
 .results {
   margin-top: 30px;
   width: 266.5px;
+}
+
+.error-item {
+  padding: 8px;
+  background-color: #ffffff;
+  color: #ff0000;
+  border: 1px solid #d3d3d3;
 }
 
 .result-item {

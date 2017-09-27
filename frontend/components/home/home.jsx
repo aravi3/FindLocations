@@ -1,4 +1,5 @@
 import React from 'react';
+import merge from 'lodash/merge';
 
 class Home extends React.Component {
   constructor(props) {
@@ -6,16 +7,20 @@ class Home extends React.Component {
 
     this.state = {
       search: "",
+      error: [],
       map: undefined,
       latitude: undefined,
       longitude: undefined,
-      locations: []
+      locations: {},
+      favorites: {},
+      onFavorites: false
     };
 
     this.setSearch = this.setSearch.bind(this);
     this.submitSearch = this.submitSearch.bind(this);
-    this.showFavorites = this.showFavorites.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this.toggleFavorite = this.toggleFavorite.bind(this);
+    this.showFavorites = this.showFavorites.bind(this);
   }
 
   componentDidMount() {
@@ -51,11 +56,7 @@ class Home extends React.Component {
   submitSearch(e) {
     e.preventDefault();
 
-    // const request = {
-    //   location: new google.maps.LatLng(this.state.latitude, this.state.longitude),
-    //   keyword: this.state.search,
-    //   rankBy: google.maps.places.RankBy.DISTANCE
-    // }
+    this.setState({ onFavorites: false });
 
     const request = {
       location: new google.maps.LatLng(this.state.latitude, this.state.longitude),
@@ -68,23 +69,101 @@ class Home extends React.Component {
   }
 
   handleSearch(results, status) {
-    let locations = [];
+    let locations = {};
+    let result;
 
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      for (let i = 0; i < results.length; i++) {
-        locations.push(results[i]);
-      }
+    switch (status) {
+      case "OK":
+        for (let i = 0; i < 10; i++) {
+          result = {
+            place_id: results[i].place_id,
+            name: results[i].name,
+            rating: results[i].rating,
+            latitude: results[i].geometry.location.lat(),
+            longitude: results[i].geometry.location.lng()
+          };
+
+          locations[results[i].place_id] = result;
+        }
+
+        this.setState({ error: [] });
+
+        break;
+      case "ERROR":
+        this.setState({ error: ["There was a problem contacting the Google servers"] });
+        break;
+      case "INVALID_REQUEST":
+        this.setState({ error: ["Invalid request"] });
+        break;
+      case "OVER_QUERY_LIMIT":
+        this.setState({ error: ["Request quota exceeded"] });
+        break;
+      case "REQUEST_DENIED":
+        this.setState({ error: ["This webpage is not allowed to use the PlacesService"] });
+        break;
+      case "UNKNOWN_ERROR":
+        this.setState({ error: ["Request could not be processed due to a server error"] });
+        break;
+      case "ZERO_RESULTS":
+        this.setState({ error: ["No results were found for this request"] });
+        break;
+      default:
     }
-
-    console.log(locations);
 
     this.setState({ locations });
   }
 
-  showFavorites() {
+  toggleFavorite(e) {
+    e.preventDefault();
+
+    const favorites = merge({}, this.state.favorites);
+    const isFavorite = this.state.favorites[e.target.dataset.id];
+
+    if (isFavorite) {
+      delete favorites[e.target.dataset.id];
+
+      if (this.state.onFavorites) {
+        this.setState({ locations: favorites });
+      }
+    }
+    else {
+      favorites[e.target.dataset.id] = {
+        place_id: this.state.locations[e.target.dataset.id].place_id,
+        name: this.state.locations[e.target.dataset.id].name,
+        rating: this.state.locations[e.target.dataset.id].rating,
+        latitude: this.state.locations[e.target.dataset.id].latitude,
+        longitude: this.state.locations[e.target.dataset.id].longitude
+      };
+    }
+
+    this.setState({ favorites });
+  }
+
+  showFavorites(e) {
+    e.preventDefault();
+    this.setState({ onFavorites: true });
+    this.setState({ locations: this.state.favorites });
   }
 
   render() {
+    let locations;
+
+    if (this.state.error.length > 0) {
+      locations = this.state.error.map((error, idx) => {
+        return (<li className="error-item" key={`error-${idx}`}>{error}</li>);
+      });
+    }
+    else {
+      locations = Object.values(this.state.locations).map((location, idx) => {
+        if (idx === this.state.locations.length - 1) {
+          return (<li className="result-item bottom-result-item" key={`result-item-${idx}`} data-id={location.place_id}><i className={this.state.favorites[location.place_id] ? "fa fa-star" : "fa fa-star-o"}></i>{location.name}</li>);
+        }
+        else {
+          return (<li className="result-item" key={`result-item-${idx}`} data-id={location.place_id}><i className={this.state.favorites[location.place_id] ? "fa fa-star" : "fa fa-star-o"}></i>{location.name}</li>);
+        }
+      });
+    }
+
     return (
       <div>
         <div className="search">
@@ -99,11 +178,8 @@ class Home extends React.Component {
           <i className="fa fa-star fa-2x" onClick={this.showFavorites}></i>
         </div>
 
-        <ul className="results">
-          <li className="result-item"><i className="fa fa-star"></i>Some text</li>
-          <li className="result-item"><i className="fa fa-star"></i>Some other text</li>
-          <li className="result-item"><i className="fa fa-star"></i>{this.state.latitude ? this.state.latitude : "Loading"}</li>
-          <li className="result-item"><i className="fa fa-star"></i>{this.state.longitude ? this.state.longitude : "Loading"}</li>
+        <ul className="results" onClick={this.toggleFavorite}>
+          {locations}
         </ul>
       </div>
     );

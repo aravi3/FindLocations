@@ -30068,6 +30068,10 @@ var _react = __webpack_require__(6);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _merge = __webpack_require__(131);
+
+var _merge2 = _interopRequireDefault(_merge);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -30086,21 +30090,25 @@ var Home = function (_React$Component) {
 
     _this.state = {
       search: "",
+      error: [],
       map: undefined,
       latitude: undefined,
       longitude: undefined,
-      locations: []
+      locations: {},
+      favorites: {},
+      onFavorites: false
     };
 
     _this.setSearch = _this.setSearch.bind(_this);
     _this.submitSearch = _this.submitSearch.bind(_this);
-    _this.showFavorites = _this.showFavorites.bind(_this);
     _this.handleSearch = _this.handleSearch.bind(_this);
+    _this.toggleFavorite = _this.toggleFavorite.bind(_this);
+    _this.showFavorites = _this.showFavorites.bind(_this);
     return _this;
   }
 
   _createClass(Home, [{
-    key: "componentDidMount",
+    key: 'componentDidMount',
     value: function componentDidMount() {
       var _this2 = this;
 
@@ -30125,7 +30133,7 @@ var Home = function (_React$Component) {
       });
     }
   }, {
-    key: "setSearch",
+    key: 'setSearch',
     value: function setSearch(e) {
       var _this3 = this;
 
@@ -30138,15 +30146,11 @@ var Home = function (_React$Component) {
       }, 0);
     }
   }, {
-    key: "submitSearch",
+    key: 'submitSearch',
     value: function submitSearch(e) {
       e.preventDefault();
 
-      // const request = {
-      //   location: new google.maps.LatLng(this.state.latitude, this.state.longitude),
-      //   keyword: this.state.search,
-      //   rankBy: google.maps.places.RankBy.DISTANCE
-      // }
+      this.setState({ onFavorites: false });
 
       var request = {
         location: new google.maps.LatLng(this.state.latitude, this.state.longitude),
@@ -30158,72 +30162,142 @@ var Home = function (_React$Component) {
       service.textSearch(request, this.handleSearch);
     }
   }, {
-    key: "handleSearch",
+    key: 'handleSearch',
     value: function handleSearch(results, status) {
-      var locations = [];
+      var locations = {};
+      var result = void 0;
 
-      if (status == google.maps.places.PlacesServiceStatus.OK) {
-        for (var i = 0; i < results.length; i++) {
-          locations.push(results[i]);
-        }
+      switch (status) {
+        case "OK":
+          for (var i = 0; i < 10; i++) {
+            result = {
+              place_id: results[i].place_id,
+              name: results[i].name,
+              rating: results[i].rating,
+              latitude: results[i].geometry.location.lat(),
+              longitude: results[i].geometry.location.lng()
+            };
+
+            locations[results[i].place_id] = result;
+          }
+
+          this.setState({ error: [] });
+
+          break;
+        case "ERROR":
+          this.setState({ error: ["There was a problem contacting the Google servers"] });
+          break;
+        case "INVALID_REQUEST":
+          this.setState({ error: ["Invalid request"] });
+          break;
+        case "OVER_QUERY_LIMIT":
+          this.setState({ error: ["Request quota exceeded"] });
+          break;
+        case "REQUEST_DENIED":
+          this.setState({ error: ["This webpage is not allowed to use the PlacesService"] });
+          break;
+        case "UNKNOWN_ERROR":
+          this.setState({ error: ["Request could not be processed due to a server error"] });
+          break;
+        case "ZERO_RESULTS":
+          this.setState({ error: ["No results were found for this request"] });
+          break;
+        default:
       }
-
-      console.log(locations);
 
       this.setState({ locations: locations });
     }
   }, {
-    key: "showFavorites",
-    value: function showFavorites() {}
+    key: 'toggleFavorite',
+    value: function toggleFavorite(e) {
+      e.preventDefault();
+
+      var favorites = (0, _merge2.default)({}, this.state.favorites);
+      var isFavorite = this.state.favorites[e.target.dataset.id];
+
+      if (isFavorite) {
+        delete favorites[e.target.dataset.id];
+
+        if (this.state.onFavorites) {
+          this.setState({ locations: favorites });
+        }
+      } else {
+        favorites[e.target.dataset.id] = {
+          place_id: this.state.locations[e.target.dataset.id].place_id,
+          name: this.state.locations[e.target.dataset.id].name,
+          rating: this.state.locations[e.target.dataset.id].rating,
+          latitude: this.state.locations[e.target.dataset.id].latitude,
+          longitude: this.state.locations[e.target.dataset.id].longitude
+        };
+      }
+
+      this.setState({ favorites: favorites });
+    }
   }, {
-    key: "render",
+    key: 'showFavorites',
+    value: function showFavorites(e) {
+      e.preventDefault();
+      this.setState({ onFavorites: true });
+      this.setState({ locations: this.state.favorites });
+    }
+  }, {
+    key: 'render',
     value: function render() {
+      var _this4 = this;
+
+      var locations = void 0;
+
+      if (this.state.error.length > 0) {
+        locations = this.state.error.map(function (error, idx) {
+          return _react2.default.createElement(
+            'li',
+            { className: 'error-item', key: 'error-' + idx },
+            error
+          );
+        });
+      } else {
+        locations = Object.values(this.state.locations).map(function (location, idx) {
+          if (idx === _this4.state.locations.length - 1) {
+            return _react2.default.createElement(
+              'li',
+              { className: 'result-item bottom-result-item', key: 'result-item-' + idx, 'data-id': location.place_id },
+              _react2.default.createElement('i', { className: _this4.state.favorites[location.place_id] ? "fa fa-star" : "fa fa-star-o" }),
+              location.name
+            );
+          } else {
+            return _react2.default.createElement(
+              'li',
+              { className: 'result-item', key: 'result-item-' + idx, 'data-id': location.place_id },
+              _react2.default.createElement('i', { className: _this4.state.favorites[location.place_id] ? "fa fa-star" : "fa fa-star-o" }),
+              location.name
+            );
+          }
+        });
+      }
+
       return _react2.default.createElement(
-        "div",
+        'div',
         null,
         _react2.default.createElement(
-          "div",
-          { className: "search" },
+          'div',
+          { className: 'search' },
           _react2.default.createElement(
-            "form",
-            { className: "search-form", onSubmit: this.submitSearch },
+            'form',
+            { className: 'search-form', onSubmit: this.submitSearch },
             _react2.default.createElement(
-              "label",
-              { className: "search-bar" },
-              _react2.default.createElement("i", { className: "fa fa-search" }),
-              _react2.default.createElement("input", { className: "search-text", onChange: this.setSearch, placeholder: "Search Locations", type: "text", value: this.state.search })
+              'label',
+              { className: 'search-bar' },
+              _react2.default.createElement('i', { className: 'fa fa-search' }),
+              _react2.default.createElement('input', { className: 'search-text', onChange: this.setSearch, placeholder: 'Search Locations', type: 'text', value: this.state.search })
             ),
-            _react2.default.createElement("input", { className: "search-submit", type: "submit", value: "Search" })
+            _react2.default.createElement('input', { className: 'search-submit', type: 'submit', value: 'Search' })
           ),
-          _react2.default.createElement("i", { className: "fa fa-star fa-2x", onClick: this.showFavorites })
+          _react2.default.createElement('i', { className: 'fa fa-star fa-2x', onClick: this.showFavorites })
         ),
         _react2.default.createElement(
-          "ul",
-          { className: "results" },
-          _react2.default.createElement(
-            "li",
-            { className: "result-item" },
-            _react2.default.createElement("i", { className: "fa fa-star" }),
-            "Some text"
-          ),
-          _react2.default.createElement(
-            "li",
-            { className: "result-item" },
-            _react2.default.createElement("i", { className: "fa fa-star" }),
-            "Some other text"
-          ),
-          _react2.default.createElement(
-            "li",
-            { className: "result-item" },
-            _react2.default.createElement("i", { className: "fa fa-star" }),
-            this.state.latitude ? this.state.latitude : "Loading"
-          ),
-          _react2.default.createElement(
-            "li",
-            { className: "result-item" },
-            _react2.default.createElement("i", { className: "fa fa-star" }),
-            this.state.longitude ? this.state.longitude : "Loading"
-          )
+          'ul',
+          { className: 'results', onClick: this.toggleFavorite },
+          locations
         )
       );
     }
