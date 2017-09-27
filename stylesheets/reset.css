@@ -27,6 +27,7 @@ ol, ul {
 body {
   background: rgba(255, 246, 209, 0.75);
   font-family: 'Open Sans','Roboto',sans-serif;
+  font-size: 16px;
 }
 
 img {

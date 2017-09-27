@@ -15,7 +15,7 @@
   color: #000000;
 }
 
-.fa-2x:hover {
+.fa-star.fa-2x:hover {
   color: #ffd700;
   cursor: pointer;
 }
@@ -23,6 +23,10 @@
 .fa-star-o {
   padding-right: 7px;
   color: #000000;
+}
+
+.fa-star-o:hover {
+  color: #ffd700;
 }
 
 .fa-star {
@@ -61,8 +65,11 @@
 }
 
 .results {
-  margin-top: 30px;
+  margin-top: 25px;
+  margin-bottom: 20px;
   width: 266.5px;
+  max-height: 500px;
+  overflow: auto;
 }
 
 .error-item {
@@ -82,10 +89,32 @@
 
 .result-item:hover {
   cursor: pointer;
-  background-color: #3232d7;
+  background-color: #31b5d7;
   color: #ffffff;
 }
 
 .bottom-result-item {
   border-bottom: 1px solid #d3d3d3;
+}
+
+.location-details {
+  font-size: 13px;
+  color: #696969;
+}
+
+.sort-button {
+  padding: 5px;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.sort-button:hover {
+  background-color: #d3d3d3;
+  color: #000000;
+}
+
+.sort-options {
+  display: flex;
+  justify-content: space-between;
+  width: 266.5px;
 }
