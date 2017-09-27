@@ -30073,7 +30073,6 @@ var Home = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (Home.__proto__ || Object.getPrototypeOf(Home)).call(this, props));
 
     _this.state = {
-      search: "",
       error: [],
       map: undefined,
       markers: [],
@@ -30085,7 +30084,6 @@ var Home = function (_React$Component) {
       sortType: ""
     };
 
-    _this.setSearch = _this.setSearch.bind(_this);
     _this.submitSearch = _this.submitSearch.bind(_this);
     _this.handleSearch = _this.handleSearch.bind(_this);
     _this.handleItemClick = _this.handleItemClick.bind(_this);
@@ -30093,6 +30091,7 @@ var Home = function (_React$Component) {
     _this.degreesToRadians = _this.degreesToRadians.bind(_this);
     _this.calculateHaversineDistance = _this.calculateHaversineDistance.bind(_this);
     _this.toggleSort = _this.toggleSort.bind(_this);
+    _this.setAutocomplete = _this.setAutocomplete.bind(_this);
     return _this;
   }
 
@@ -30124,24 +30123,13 @@ var Home = function (_React$Component) {
       });
     }
   }, {
-    key: 'setSearch',
-    value: function setSearch(e) {
-      var _this3 = this;
-
-      e.preventDefault();
-
-      var search = e.target.value ? e.target.value : "";
-      this.setState({ search: search });
-      setTimeout(function () {
-        return console.log(_this3.state.search);
-      }, 0);
-    }
-  }, {
     key: 'submitSearch',
     value: function submitSearch(e) {
       e.preventDefault();
 
-      if (!this.state.search) {
+      var searchText = e.target.querySelector(".search-text").value;
+
+      if (!searchText) {
         return;
       }
 
@@ -30150,7 +30138,7 @@ var Home = function (_React$Component) {
       var request = {
         location: new google.maps.LatLng(this.state.latitude, this.state.longitude),
         radius: '20000',
-        query: this.state.search
+        query: searchText
       };
 
       var service = new google.maps.places.PlacesService(this.state.map);
@@ -30250,7 +30238,7 @@ var Home = function (_React$Component) {
   }, {
     key: 'showFavorites',
     value: function showFavorites(e) {
-      var _this4 = this;
+      var _this3 = this;
 
       e.preventDefault();
 
@@ -30267,7 +30255,7 @@ var Home = function (_React$Component) {
       Object.values(this.state.favorites).forEach(function (favorite) {
         marker = new google.maps.Marker({
           position: { lat: favorite.latitude, lng: favorite.longitude },
-          map: _this4.state.map
+          map: _this3.state.map
         });
 
         markers.push(marker);
@@ -30295,17 +30283,24 @@ var Home = function (_React$Component) {
   }, {
     key: 'toggleSort',
     value: function toggleSort(type) {
-      var _this5 = this;
+      var _this4 = this;
 
       return function (e) {
         e.preventDefault();
-        _this5.setState({ sortType: type });
+        _this4.setState({ sortType: type });
       };
+    }
+  }, {
+    key: 'setAutocomplete',
+    value: function setAutocomplete(e) {
+      e.preventDefault();
+      var options = {};
+      var autocomplete = new google.maps.places.Autocomplete(e.target, options);
     }
   }, {
     key: 'render',
     value: function render() {
-      var _this6 = this;
+      var _this5 = this;
 
       var locations = void 0;
 
@@ -30323,8 +30318,8 @@ var Home = function (_React$Component) {
               distance2 = void 0;
 
           locations = Object.values(this.state.locations).sort(function (location1, location2) {
-            distance1 = _this6.calculateHaversineDistance(_this6.state.latitude, _this6.state.longitude, location1.latitude, location1.longitude);
-            distance2 = _this6.calculateHaversineDistance(_this6.state.latitude, _this6.state.longitude, location2.latitude, location2.longitude);
+            distance1 = _this5.calculateHaversineDistance(_this5.state.latitude, _this5.state.longitude, location1.latitude, location1.longitude);
+            distance2 = _this5.calculateHaversineDistance(_this5.state.latitude, _this5.state.longitude, location2.latitude, location2.longitude);
 
             return distance1 - distance2;
           });
@@ -30339,12 +30334,12 @@ var Home = function (_React$Component) {
         }
 
         locations = locations.map(function (location, idx) {
-          var distance = _this6.calculateHaversineDistance(_this6.state.latitude, _this6.state.longitude, location.latitude, location.longitude);
+          var distance = _this5.calculateHaversineDistance(_this5.state.latitude, _this5.state.longitude, location.latitude, location.longitude);
 
           return _react2.default.createElement(
             'li',
-            { className: idx === Object.values(_this6.state.locations).length - 1 ? "result-item bottom-result-item" : "result-item", key: 'result-item-' + idx, 'data-id': location.place_id },
-            _react2.default.createElement('i', { className: _this6.state.favorites[location.place_id] ? "fa fa-star" : "fa fa-star-o", 'data-id': location.place_id }),
+            { className: idx === Object.values(_this5.state.locations).length - 1 ? "result-item bottom-result-item" : "result-item", key: 'result-item-' + idx, 'data-id': location.place_id },
+            _react2.default.createElement('i', { className: _this5.state.favorites[location.place_id] ? "fa fa-star" : "fa fa-star-o", 'data-id': location.place_id }),
             location.name,
             _react2.default.createElement('br', null),
             _react2.default.createElement(
@@ -30373,7 +30368,7 @@ var Home = function (_React$Component) {
               'label',
               { className: 'search-bar' },
               _react2.default.createElement('i', { className: 'fa fa-search' }),
-              _react2.default.createElement('input', { className: 'search-text', onChange: this.setSearch, placeholder: 'Search Locations', type: 'text', value: this.state.search })
+              _react2.default.createElement('input', { className: 'search-text', onFocus: this.setAutocomplete, placeholder: 'Search Locations', type: 'text' })
             ),
             _react2.default.createElement('input', { className: 'search-submit', type: 'submit', value: 'Search' })
           ),

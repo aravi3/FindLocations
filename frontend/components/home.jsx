@@ -6,7 +6,6 @@ class Home extends React.Component {
     super(props);
 
     this.state = {
-      search: "",
       error: [],
       map: undefined,
       markers: [],
@@ -18,7 +17,6 @@ class Home extends React.Component {
       sortType: ""
     };
 
-    this.setSearch = this.setSearch.bind(this);
     this.submitSearch = this.submitSearch.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
@@ -26,6 +24,7 @@ class Home extends React.Component {
     this.degreesToRadians = this.degreesToRadians.bind(this);
     this.calculateHaversineDistance = this.calculateHaversineDistance.bind(this);
     this.toggleSort = this.toggleSort.bind(this);
+    this.setAutocomplete = this.setAutocomplete.bind(this);
   }
 
   componentDidMount() {
@@ -52,18 +51,12 @@ class Home extends React.Component {
     });
   }
 
-  setSearch(e) {
-    e.preventDefault();
-
-    const search = e.target.value ? e.target.value : "";
-    this.setState({ search });
-    setTimeout(() => console.log(this.state.search), 0);
-  }
-
   submitSearch(e) {
     e.preventDefault();
 
-    if (!this.state.search) {
+    const searchText = e.target.querySelector(".search-text").value;
+
+    if (!searchText) {
       return;
     }
 
@@ -72,7 +65,7 @@ class Home extends React.Component {
     const request = {
       location: new google.maps.LatLng(this.state.latitude, this.state.longitude),
       radius: '20000',
-      query: this.state.search
+      query: searchText
     }
 
     const service = new google.maps.places.PlacesService(this.state.map);
@@ -220,6 +213,12 @@ class Home extends React.Component {
     };
   }
 
+  setAutocomplete(e) {
+    e.preventDefault();
+    const options = {};
+    const autocomplete = new google.maps.places.Autocomplete(e.target, options);
+  }
+
   render() {
     let locations;
 
@@ -269,7 +268,7 @@ class Home extends React.Component {
         <div className="search">
           <form className="search-form" onSubmit={this.submitSearch}>
             <label className="search-bar"><i className="fa fa-search"></i>
-              <input className="search-text" onChange={this.setSearch} placeholder="Search Locations" type="text" value={this.state.search} />
+              <input className="search-text" onFocus={this.setAutocomplete} placeholder="Search Locations" type="text" />
             </label>
 
             <input className="search-submit" type="submit" value="Search" />
