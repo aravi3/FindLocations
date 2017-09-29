@@ -36,6 +36,13 @@ for (let i = 0; i < results.length; i++) {
 }
 ```
 
+If a location in the list is clicked, the map will center around that location and increase the zoom to 15:
+
+```js
+this.state.map.panTo({lat: this.state.locations[e.target.dataset.id].latitude, lng: this.state.locations[e.target.dataset.id].longitude});
+this.state.map.setZoom(15);
+```
+
 ### Favorite Locations
 
 Users can star locations that they like. When they wish to view a list of their favorites, they can click on the star to the right of the search button. Markers are also placed on the map for the favorite locations.
