@@ -5,6 +5,8 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
 
+    // Initialize local state
+    // If items exists in localStorage, set these to the initial values
     this.state = {
       error: [],
       map: undefined,
@@ -17,6 +19,7 @@ class Home extends React.Component {
       sortType: localStorage.getItem("sortType") || ""
     };
 
+    // Set context for component functions
     this.submitSearch = this.submitSearch.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
@@ -27,6 +30,7 @@ class Home extends React.Component {
     this.setAutocomplete = this.setAutocomplete.bind(this);
   }
 
+  // On mount of the component, create the map and set center coordinates
   componentDidMount() {
     if (this.state.onFavorites) { this.setState({ locations: this.state.favorites }); }
 
@@ -38,6 +42,9 @@ class Home extends React.Component {
 
       const currentCoordinates = {lat: position.coords.latitude, lng: position.coords.longitude};
 
+      // If map already exists in localStorage, use this map to center around
+      // the user's current coordinates
+      // Else, create a new map
       if (this.state.map) {
         this.state.map.panTo(currentCoordinates);
       }
@@ -53,6 +60,10 @@ class Home extends React.Component {
       localStorage.setItem("longitude", currentCoordinates.lng.toString());
     });
 
+    // The above getCurrentPosition function returns immediately because it is
+    // asynchronous
+    // Therefore, in the meantime, either create a new map based on coordinates
+    // that exist in localStorage else use the coordinates of the Ferry Building
     if (this.state.latitude && this.state.longitude) {
       this.setState({ map: new google.maps.Map(document.getElementById("map"), {
           center: {lat: this.state.latitude, lng: this.state.longitude},
@@ -75,6 +86,8 @@ class Home extends React.Component {
       localStorage.setItem("longitude", ferryBuildingCoordinates.lng.toString());
     }
 
+    // If a list of locations exist in localStorage, create markers for them
+    // on the map
     setTimeout(() => {
       if (Object.keys(this.state.locations).length > 0) {
         const markers = [];
@@ -94,6 +107,8 @@ class Home extends React.Component {
     }, 0);
   }
 
+  // Make a request to the Google Places API based on the query string
+  // Parameter: event, Return value: none
   submitSearch(e) {
     e.preventDefault();
 
@@ -117,6 +132,10 @@ class Home extends React.Component {
     service.textSearch(request, this.handleSearch);
   }
 
+  // If results were retrieved, populate locations in the local state and
+  // create a marker for each location on the map
+  // If results were not able to be retrieved, set the appropriate error in the local state
+  // Parameters: result of the API request, status of the request, Return value: none
   handleSearch(results, status) {
     const locations = {};
     const markers = [];
@@ -182,6 +201,11 @@ class Home extends React.Component {
     localStorage.setItem("locations", JSON.stringify(locations));
   }
 
+  // If the user clicks the star next to a location, toggle the location's
+  // favorite status
+  // If the user clicks a location, set the map center to the location and increase
+  // the zoom to 15
+  // Parameter: event, Return value: none
   handleItemClick(e) {
     if (e.target.className.includes("fa-star")) {
       const favorites = merge({}, this.state.favorites);
@@ -195,6 +219,8 @@ class Home extends React.Component {
         if (this.state.onFavorites) {
           this.setState({ locations: favorites });
 
+          // If user is on favorites tab, remove the marker for the location
+          // from the map
           this.state.markers.filter((marker) => {
             return marker.title === placeId;
           })[0].setMap(null);
@@ -219,6 +245,9 @@ class Home extends React.Component {
     }
   }
 
+  // Show the list of favorited locations when the star next to the search
+  // button is clicked and create a marker for each favorite on the map
+  // Parameter: event, Return value: none
   showFavorites(e) {
     e.preventDefault();
 
@@ -227,6 +256,7 @@ class Home extends React.Component {
 
     localStorage.setItem("onFavorites", "true");
 
+    // Remove current markers on map
     for (let i = 0; i < this.state.markers.length; i++ ) {
       this.state.markers[i].setMap(null);
     }
@@ -234,6 +264,7 @@ class Home extends React.Component {
     const markers = [];
     let marker;
 
+    // Set new markers for favorites
     Object.values(this.state.favorites).forEach((favorite) => {
       marker = new google.maps.Marker({
         position: {lat: favorite.latitude, lng: favorite.longitude},
@@ -251,6 +282,8 @@ class Home extends React.Component {
     return degrees * (Math.PI/180);
   }
 
+  // Calculate the great-circle distance between two coordinates
+  // Parameters: two sets of coordinates, Return value: distance in miles
   calculateHaversineDistance(lat1, lng1, lat2, lng2) {
     const earthRadiusMiles = 3959;
     const dLat = this.degreesToRadians(lat2 - lat1);
@@ -266,6 +299,9 @@ class Home extends React.Component {
     return distance.toFixed(1);
   }
 
+  // Set the sortType in the local state to distance or ranking depending on
+  // which sort button was clicked
+  // Parameter: either "distance" or "rating", Return value: none
   toggleSort(type) {
     return (e) => {
       e.preventDefault();
@@ -274,6 +310,8 @@ class Home extends React.Component {
     };
   }
 
+  // Set the autocomplete for the query box when the box receives focus
+  // Parameter: event, Return value: none
   setAutocomplete(e) {
     e.preventDefault();
     const options = {};
