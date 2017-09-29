@@ -79,6 +79,12 @@
   border: 1px solid #d3d3d3;
 }
 
+.no-favorites-item {
+  padding: 8px;
+  background-color: #ffffff;
+  border: 1px solid #d3d3d3;
+}
+
 .result-item {
   padding: 8px;
   background-color: #ffffff;

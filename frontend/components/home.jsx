@@ -9,12 +9,12 @@ class Home extends React.Component {
       error: [],
       map: undefined,
       markers: [],
-      latitude: undefined,
-      longitude: undefined,
-      locations: {},
-      favorites: {},
-      onFavorites: false,
-      sortType: ""
+      latitude: parseFloat(localStorage.getItem("latitude")) || undefined,
+      longitude: parseFloat(localStorage.getItem("longitude")) || undefined,
+      locations: JSON.parse(localStorage.getItem("locations")) || {},
+      favorites: JSON.parse(localStorage.getItem("favorites")) || {},
+      onFavorites: localStorage.getItem("onFavorites") === "true" || false,
+      sortType: localStorage.getItem("sortType") || ""
     };
 
     this.submitSearch = this.submitSearch.bind(this);
@@ -28,6 +28,8 @@ class Home extends React.Component {
   }
 
   componentDidMount() {
+    if (this.state.onFavorites) { this.setState({ locations: this.state.favorites }); }
+
     const currentLocation = navigator.geolocation;
 
     currentLocation.getCurrentPosition((position) => {
@@ -36,19 +38,60 @@ class Home extends React.Component {
 
       const currentCoordinates = {lat: position.coords.latitude, lng: position.coords.longitude};
 
+      if (this.state.map) {
+        this.state.map.panTo(currentCoordinates);
+      }
+      else {
+        this.setState({ map: new google.maps.Map(document.getElementById("map"), {
+            center: currentCoordinates,
+            zoom: 12
+          })
+        });
+      }
+
+      localStorage.setItem("latitude", currentCoordinates.lat.toString());
+      localStorage.setItem("longitude", currentCoordinates.lng.toString());
+    });
+
+    if (this.state.latitude && this.state.longitude) {
       this.setState({ map: new google.maps.Map(document.getElementById("map"), {
-          center: currentCoordinates,
+          center: {lat: this.state.latitude, lng: this.state.longitude},
+          zoom: 12
+        })
+      });
+    }
+    else {
+      const ferryBuildingCoordinates = {lat: 37.7956, lng: -122.3933};
+
+      this.setState({ latitude: ferryBuildingCoordinates.lat });
+      this.setState({ longitude: ferryBuildingCoordinates.lng });
+      this.setState({ map: new google.maps.Map(document.getElementById("map"), {
+          center: ferryBuildingCoordinates,
           zoom: 12
         })
       });
 
-      const marker = new google.maps.Marker({
-        position: currentCoordinates,
-        map: this.state.map
-      });
+      localStorage.setItem("latitude", ferryBuildingCoordinates.lat.toString());
+      localStorage.setItem("longitude", ferryBuildingCoordinates.lng.toString());
+    }
 
-      this.setState({ markers: [marker] });
-    });
+    setTimeout(() => {
+      if (Object.keys(this.state.locations).length > 0) {
+        const markers = [];
+
+        Object.values(this.state.locations).forEach((location) => {
+          let marker = new google.maps.Marker({
+            position: {lat: location.latitude, lng: location.longitude},
+            map: this.state.map,
+            title: location.place_id
+          });
+
+          markers.push(marker);
+        });
+
+        this.setState({ markers });
+      }
+    }, 0);
   }
 
   submitSearch(e) {
@@ -61,6 +104,8 @@ class Home extends React.Component {
     }
 
     this.setState({ onFavorites: false });
+
+    localStorage.setItem("onFavorites", "false");
 
     const request = {
       location: new google.maps.LatLng(this.state.latitude, this.state.longitude),
@@ -75,6 +120,7 @@ class Home extends React.Component {
   handleSearch(results, status) {
     const locations = {};
     const markers = [];
+    const error = [];
     let result, marker;
 
     switch (status) {
@@ -99,7 +145,8 @@ class Home extends React.Component {
 
           marker = new google.maps.Marker({
             position: {lat: result.latitude, lng: result.longitude},
-            map: this.state.map
+            map: this.state.map,
+            title: result.place_id
           });
 
           markers.push(marker);
@@ -109,27 +156,30 @@ class Home extends React.Component {
 
         break;
       case "ERROR":
-        this.setState({ error: ["There was a problem contacting the Google servers"] });
+        error.push("There was a problem contacting the Google servers");
         break;
       case "INVALID_REQUEST":
-        this.setState({ error: ["Invalid request"] });
+        error.push("Invalid request");
         break;
       case "OVER_QUERY_LIMIT":
-        this.setState({ error: ["Request quota exceeded"] });
+        error.push("Request quota exceeded");
         break;
       case "REQUEST_DENIED":
-        this.setState({ error: ["This webpage is not allowed to use the PlacesService"] });
+        error.push("This webpage is not allowed to use the PlacesService");
         break;
       case "UNKNOWN_ERROR":
-        this.setState({ error: ["Request could not be processed due to a server error"] });
+        error.push("Request could not be processed due to a server error");
         break;
       case "ZERO_RESULTS":
-        this.setState({ error: ["No results were found for this request"] });
+        error.push("No results were found for this request");
         break;
       default:
     }
 
+    this.setState({ error });
     this.setState({ locations });
+
+    localStorage.setItem("locations", JSON.stringify(locations));
   }
 
   handleItemClick(e) {
@@ -138,10 +188,16 @@ class Home extends React.Component {
       const isFavorite = this.state.favorites[e.target.dataset.id];
 
       if (isFavorite) {
+        const placeId = favorites[e.target.dataset.id].place_id;
+
         delete favorites[e.target.dataset.id];
 
         if (this.state.onFavorites) {
           this.setState({ locations: favorites });
+
+          this.state.markers.filter((marker) => {
+            return marker.title === placeId;
+          })[0].setMap(null);
         }
       }
       else {
@@ -155,6 +211,7 @@ class Home extends React.Component {
       }
 
       this.setState({ favorites });
+      localStorage.setItem("favorites", JSON.stringify(favorites));
     }
     else if (e.target.className.includes("result-item")) {
       this.state.map.panTo({lat: this.state.locations[e.target.dataset.id].latitude, lng: this.state.locations[e.target.dataset.id].longitude});
@@ -168,6 +225,8 @@ class Home extends React.Component {
     this.setState({ onFavorites: true });
     this.setState({ locations: this.state.favorites });
 
+    localStorage.setItem("onFavorites", "true");
+
     for (let i = 0; i < this.state.markers.length; i++ ) {
       this.state.markers[i].setMap(null);
     }
@@ -178,7 +237,8 @@ class Home extends React.Component {
     Object.values(this.state.favorites).forEach((favorite) => {
       marker = new google.maps.Marker({
         position: {lat: favorite.latitude, lng: favorite.longitude},
-        map: this.state.map
+        map: this.state.map,
+        title: favorite.place_id
       });
 
       markers.push(marker);
@@ -210,6 +270,7 @@ class Home extends React.Component {
     return (e) => {
       e.preventDefault();
       this.setState({ sortType: type });
+      localStorage.setItem("sortType", type);
     };
   }
 
@@ -225,6 +286,11 @@ class Home extends React.Component {
     if (this.state.error.length > 0) {
       locations = this.state.error.map((error, idx) => {
         return (<li className="error-item" key={`error-${idx}`}>{error}</li>);
+      });
+    }
+    else if (this.state.onFavorites && Object.keys(this.state.locations).length === 0) {
+      locations = ["No favorite locations to show"].map((noFavorites, idx) => {
+        return (<li className="no-favorites-item" key={`no-favorites-${idx}`}>{noFavorites}</li>);
       });
     }
     else {
@@ -281,7 +347,7 @@ class Home extends React.Component {
           {locations}
         </ul>
 
-        {locations.length > 0 && this.state.error.length === 0 ?
+        {Object.keys(this.state.locations).length > 0 && this.state.error.length === 0 ?
           <div className="sort-options">
             <button className="sort-button" onClick={this.toggleSort("distance")}>Sort By Distance</button>
             <button className="sort-button" onClick={this.toggleSort("rating")}>Sort By Rating</button>
