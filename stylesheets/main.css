@@ -67,7 +67,7 @@
 .results {
   margin-top: 25px;
   margin-bottom: 20px;
-  width: 300px;
+  width: 310px;
   max-height: 500px;
   overflow: auto;
 }
@@ -98,10 +98,6 @@
   cursor: pointer;
   background-color: #31b5d7;
   color: #ffffff;
-
-  .location-letter {
-    border-color: #ffffff;
-  }
 }
 
 .bottom-result-item {
@@ -110,9 +106,8 @@
 
 .location-letter {
   position: absolute;
+  color: #ff0000;
   right: 10px;
-  border: 1px solid #000000;
-  border-radius: 100px;
   padding-top: 2px;
   padding-bottom: 2px;
   padding-left: 5px;

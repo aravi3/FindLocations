@@ -46,7 +46,7 @@ class Home extends React.Component {
       // the user's current coordinates
       // Else, create a new map
       if (this.state.map) {
-        this.state.map.panTo(currentCoordinates);
+        this.state.map.setCenter(currentCoordinates);
       }
       else {
         this.setState({ map: new google.maps.Map(document.getElementById("map"), {
@@ -96,7 +96,8 @@ class Home extends React.Component {
           let marker = new google.maps.Marker({
             position: {lat: location.latitude, lng: location.longitude},
             map: this.state.map,
-            title: location.place_id
+            title: location.place_id,
+            label: location.letter
           });
 
           markers.push(marker);
@@ -147,6 +148,8 @@ class Home extends React.Component {
       case "OK":
         this.setState({ error: [] });
         this.setState({ sortType: "" });
+
+        this.state.map.setZoom(12);
 
         for (let i = 0; i < this.state.markers.length; i++ ) {
           this.state.markers[i].setMap(null);
@@ -248,7 +251,7 @@ class Home extends React.Component {
       localStorage.setItem("favorites", JSON.stringify(favorites));
     }
     else if (e.target.className.includes("result-item")) {
-      this.state.map.panTo({lat: this.state.locations[e.target.dataset.id].latitude, lng: this.state.locations[e.target.dataset.id].longitude});
+      this.state.map.setCenter({lat: this.state.locations[e.target.dataset.id].latitude, lng: this.state.locations[e.target.dataset.id].longitude});
       this.state.map.setZoom(15);
     }
   }
@@ -264,6 +267,8 @@ class Home extends React.Component {
 
     localStorage.setItem("onFavorites", "true");
 
+    this.state.map.setZoom(12);
+
     // Remove current markers on map
     for (let i = 0; i < this.state.markers.length; i++ ) {
       this.state.markers[i].setMap(null);
@@ -277,7 +282,8 @@ class Home extends React.Component {
       marker = new google.maps.Marker({
         position: {lat: favorite.latitude, lng: favorite.longitude},
         map: this.state.map,
-        title: favorite.place_id
+        title: favorite.place_id,
+        label: favorite.letter
       });
 
       markers.push(marker);

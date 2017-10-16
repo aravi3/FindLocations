@@ -23370,7 +23370,7 @@ var Home = function (_React$Component) {
         // the user's current coordinates
         // Else, create a new map
         if (_this2.state.map) {
-          _this2.state.map.panTo(currentCoordinates);
+          _this2.state.map.setCenter(currentCoordinates);
         } else {
           _this2.setState({ map: new google.maps.Map(document.getElementById("map"), {
               center: currentCoordinates,
@@ -23418,7 +23418,8 @@ var Home = function (_React$Component) {
             var marker = new google.maps.Marker({
               position: { lat: location.latitude, lng: location.longitude },
               map: _this2.state.map,
-              title: location.place_id
+              title: location.place_id,
+              label: location.letter
             });
 
             markers.push(marker);
@@ -23477,6 +23478,8 @@ var Home = function (_React$Component) {
         case "OK":
           this.setState({ error: [] });
           this.setState({ sortType: "" });
+
+          this.state.map.setZoom(12);
 
           for (var i = 0; i < this.state.markers.length; i++) {
             this.state.markers[i].setMap(null);
@@ -23579,7 +23582,7 @@ var Home = function (_React$Component) {
         this.setState({ favorites: favorites });
         localStorage.setItem("favorites", JSON.stringify(favorites));
       } else if (e.target.className.includes("result-item")) {
-        this.state.map.panTo({ lat: this.state.locations[e.target.dataset.id].latitude, lng: this.state.locations[e.target.dataset.id].longitude });
+        this.state.map.setCenter({ lat: this.state.locations[e.target.dataset.id].latitude, lng: this.state.locations[e.target.dataset.id].longitude });
         this.state.map.setZoom(15);
       }
     }
@@ -23600,6 +23603,8 @@ var Home = function (_React$Component) {
 
       localStorage.setItem("onFavorites", "true");
 
+      this.state.map.setZoom(12);
+
       // Remove current markers on map
       for (var i = 0; i < this.state.markers.length; i++) {
         this.state.markers[i].setMap(null);
@@ -23613,7 +23618,8 @@ var Home = function (_React$Component) {
         marker = new google.maps.Marker({
           position: { lat: favorite.latitude, lng: favorite.longitude },
           map: _this3.state.map,
-          title: favorite.place_id
+          title: favorite.place_id,
+          label: favorite.letter
         });
 
         markers.push(marker);
