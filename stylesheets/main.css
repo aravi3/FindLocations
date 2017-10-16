@@ -67,7 +67,7 @@
 .results {
   margin-top: 25px;
   margin-bottom: 20px;
-  width: 266.5px;
+  width: 300px;
   max-height: 500px;
   overflow: auto;
 }
@@ -87,6 +87,7 @@
 
 .result-item {
   padding: 8px;
+  position: relative;
   background-color: #ffffff;
   border-top: 1px solid #d3d3d3;
   border-left: 1px solid #d3d3d3;
@@ -97,10 +98,25 @@
   cursor: pointer;
   background-color: #31b5d7;
   color: #ffffff;
+
+  .location-letter {
+    border-color: #ffffff;
+  }
 }
 
 .bottom-result-item {
   border-bottom: 1px solid #d3d3d3;
+}
+
+.location-letter {
+  position: absolute;
+  right: 10px;
+  border: 1px solid #000000;
+  border-radius: 100px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .location-details {

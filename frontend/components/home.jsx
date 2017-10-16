@@ -140,7 +140,8 @@ class Home extends React.Component {
     const locations = {};
     const markers = [];
     const error = [];
-    let result, marker;
+    let result, marker, letters
+    let letterIndex = 0;
 
     switch (status) {
       case "OK":
@@ -152,12 +153,15 @@ class Home extends React.Component {
         }
 
         for (let i = 0; i < results.length; i++) {
+          letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
           result = {
             place_id: results[i].place_id,
             name: results[i].name,
             rating: results[i].rating,
             latitude: results[i].geometry.location.lat(),
-            longitude: results[i].geometry.location.lng()
+            longitude: results[i].geometry.location.lng(),
+            letter: letters[letterIndex]
           };
 
           locations[results[i].place_id] = result;
@@ -165,10 +169,13 @@ class Home extends React.Component {
           marker = new google.maps.Marker({
             position: {lat: result.latitude, lng: result.longitude},
             map: this.state.map,
-            title: result.place_id
+            title: result.place_id,
+            label: letters[letterIndex]
           });
 
           markers.push(marker);
+
+          letterIndex++;
         }
 
         this.setState({ markers });
@@ -232,7 +239,8 @@ class Home extends React.Component {
           name: this.state.locations[e.target.dataset.id].name,
           rating: this.state.locations[e.target.dataset.id].rating,
           latitude: this.state.locations[e.target.dataset.id].latitude,
-          longitude: this.state.locations[e.target.dataset.id].longitude
+          longitude: this.state.locations[e.target.dataset.id].longitude,
+          letter: this.state.locations[e.target.dataset.id].letter
         };
       }
 
@@ -359,8 +367,11 @@ class Home extends React.Component {
         return (
           <li className={idx === Object.values(this.state.locations).length - 1 ? "result-item bottom-result-item" : "result-item"} key={`result-item-${idx}`} data-id={location.place_id}>
             <i className={this.state.favorites[location.place_id] ? "fa fa-star" : "fa fa-star-o"} data-id={location.place_id}></i>
-            {location.name}
+
+            <span className="location-name">{location.name}</span> <span className="location-letter">{location.letter}</span>
+
             <br />
+
             <span className="location-details">Rating: {location.rating} &nbsp;&nbsp; Distance: {distance} mi</span>
           </li>
         );
